@@ -27,7 +27,7 @@
 
 void print_usage(void)
 {
-	printf("Usage: orlib2ki [-v] -i inputfile [-o outputfile] [-g size]\n");
+	printf("Usage: orlib2ki [-v] -i inputfile [-o outputfile] [-g grid_scale] [-t text_scale] [-s text_size]\n");
 	printf("       orlib2ki -h\n");
 }
 
@@ -51,13 +51,16 @@ int main(int argc, char *argv[])
 	char ifile[128] = {0};
 	char ofile[128] = {0};
 	int verbose = 0;
+	float grid_scale = 7.5;
+	float text_scale = 3;
+	int text_size = 35;
 
 	if (argc == 1) {
 		print_usage();
 		return EXIT_FAILURE;
 	}
 
-	while ((opt = getopt(argc, argv, "i:o:hv")) != -1) {
+	while ((opt = getopt(argc, argv, "i:o:hvg:t:s:")) != -1) {
 		switch(opt) {
 		case 'i':
 			strcpy(ifile, optarg);
@@ -67,6 +70,15 @@ int main(int argc, char *argv[])
 			break;
 		case 'v':
 			verbose = 1;
+			break;
+		case 'g':
+			sscanf(optarg, "%f", &grid_scale);
+			break;
+		case 't':
+			sscanf(optarg, "%f", &text_scale);
+			break;
+		case 's':
+			sscanf(optarg, "%u", &text_size);
 			break;
 		case 'h':
 		case ':':
@@ -215,23 +227,23 @@ int main(int argc, char *argv[])
 		tmp = tmp->xmlChildrenNode;
 		tmp = find_next_node(tmp, "Defn");
 
-		f0.x = get_defn_int_val(tmp, "locX") * GRID_FACTOR;
-		f0.y = get_defn_int_val(tmp, "locY") * -GRID_FACTOR;
+		f0.x = get_defn_int_val(tmp, "locX") * grid_scale;
+		f0.y = get_defn_int_val(tmp, "locY") * -grid_scale;
 
 		f0.rotation = get_defn_int_val(tmp, "rotation");
 
 		if (f0.rotation == 0) {
 			orientation = 'H';
-			size = DEFAULT_TEXT_SIZE;
+			size = text_size;
 		} else if (f0.rotation == 2) {
 			orientation = 'H';
-			size = -DEFAULT_TEXT_SIZE;
+			size = -text_size;
 		} else if (f0.rotation == 1) {
 			orientation = 'V';
-			size = DEFAULT_TEXT_SIZE;
+			size = text_size;
 		} else if (f0.rotation == 3) {
 			orientation = 'V';
-			size = -DEFAULT_TEXT_SIZE;
+			size = -text_size;
 		}
 
 		tmp = find_next_node(normal_view_child, "SymbolDisplayProp");
@@ -267,8 +279,8 @@ int main(int argc, char *argv[])
 			tmp = find_next_node(tmp, "Defn");
 
 			component.val_rot = get_defn_int_val(tmp, "rotation");
-			component.value_x = get_defn_int_val(tmp, "locX") * GRID_FACTOR;
-			component.value_y = get_defn_int_val(tmp, "locY") * -GRID_FACTOR;
+			component.value_x = get_defn_int_val(tmp, "locX") * grid_scale;
+			component.value_y = get_defn_int_val(tmp, "locY") * -grid_scale;
 
 			tmp = valueProp->xmlChildrenNode;
 			tmp = find_next_node(tmp, "PropFont");
@@ -290,8 +302,8 @@ int main(int argc, char *argv[])
 		tmp = tmp->xmlChildrenNode;
 		tmp = find_next_node(tmp, "Defn");
 
-		component.box_right_x = get_defn_int_val(tmp, "x2") * GRID_FACTOR;
-		component.box_right_y = get_defn_int_val(tmp, "y2")* -GRID_FACTOR;
+		component.box_right_x = get_defn_int_val(tmp, "x2") * grid_scale;
+		component.box_right_y = get_defn_int_val(tmp, "y2")* -grid_scale;
 
 		fprintf(fp, "F1 \"%s\" %d %d 35 H I L CNN \n", component.name,
 							       component.box_right_x,
@@ -299,21 +311,21 @@ int main(int argc, char *argv[])
 
 		fprintf(fp, "F2 \"%s\" %d %d %d H I L CNN\n", component.footprint,
 							      component.box_right_x,
-							      component.box_right_y - DEFAULT_TEXT_SIZE - 10,
-							      DEFAULT_TEXT_SIZE);
+							      component.box_right_y - text_size - 10,
+							      text_size);
 
 		if (component.val_rot == 0) {
 			orientation = 'H';
-			size = DEFAULT_TEXT_SIZE;
+			size = text_size;
 		} else if (component.val_rot == 2) {
 			orientation = 'H';
-			size = -DEFAULT_TEXT_SIZE;
+			size = -text_size;
 		} else if (component.val_rot == 1) {
 			orientation = 'V';
-			size = DEFAULT_TEXT_SIZE;
+			size = text_size;
 		} else if (component.val_rot == 3) {
 			orientation = 'V';
-			size = -DEFAULT_TEXT_SIZE;
+			size = -text_size;
 		}
 
 		if (component.has_value) {
@@ -333,7 +345,7 @@ int main(int argc, char *argv[])
 
 		component.nb_phys_part = get_physical_part_number(libpart->xmlChildrenNode);
 
-		do_user_prop(libpart, component, fp);
+		do_user_prop(text_size, libpart, component, fp);
 
 		fprintf(fp, "DRAW\n");
 
@@ -344,37 +356,37 @@ int main(int argc, char *argv[])
 
 			tmp = find_next_node(normal_view_child, "Rect");
 			while (tmp) {
-				do_rectangle(component.part_count == 1 ? 0 : part_index, tmp, fp);
+				do_rectangle(grid_scale, component.part_count == 1 ? 0 : part_index, tmp, fp);
 				tmp = find_next_node(tmp->next, "Rect");
 			}
 
 			tmp = find_next_node(normal_view_child, "Ellipse");
 			while (tmp) {
-				do_ellipse(component.part_count == 1 ? 0 : part_index, tmp, fp);
+				do_ellipse(grid_scale, component.part_count == 1 ? 0 : part_index, tmp, fp);
 				tmp = find_next_node(tmp->next, "Ellipse");
 			}
 
 			tmp = find_next_node(normal_view_child, "Line");
 			while (tmp) {
-				do_line(component.part_count == 1 ? 0 : part_index, tmp, fp);
+				do_line(grid_scale, component.part_count == 1 ? 0 : part_index, tmp, fp);
 				tmp = find_next_node(tmp->next, "Line");
 			}
 
 			tmp = find_next_node(normal_view_child, "Arc");
 			while (tmp) {
-				do_arc(component.part_count == 1 ? 0 : part_index, tmp, fp);
+				do_arc(grid_scale, component.part_count == 1 ? 0 : part_index, tmp, fp);
 				tmp = find_next_node(tmp->next, "Arc");
 			}
 
 			tmp = find_next_node(normal_view_child, "CommentText");
 			while (tmp) {
-				do_text(component.part_count == 1 ? 0 : part_index, tmp, fp);
+				do_text(text_scale, grid_scale, component.part_count == 1 ? 0 : part_index, tmp, fp);
 				tmp = find_next_node(tmp->next, "CommentText");
 			}
 
 			tmp = find_next_node(normal_view_child, "Polygon");
 			while (tmp) {
-				do_polygon(component.part_count == 1 ? 0 : part_index, tmp, fp);
+				do_polygon(grid_scale, component.part_count == 1 ? 0 : part_index, tmp, fp);
 				tmp = find_next_node(tmp->next, "Polygon");
 			}
 
@@ -382,7 +394,7 @@ int main(int argc, char *argv[])
 			tmp = find_next_node(normal_view_child, "SymbolPinScalar");
 			while (tmp) {
 				struct pin pin;
-				do_pin(tmp, &pin);
+				do_pin(grid_scale, tmp, &pin);
 				if ((component.units_locked == 1) && (component.nb_phys_part == 1)) {
 					do_physical(libpart_child, &pin, fp, 0);
 				} else if ((component.units_locked == 1) && (component.nb_phys_part > 1)) {

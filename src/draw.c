@@ -22,7 +22,7 @@
 #include "orlib2ki.h"
 #include "helpers.h"
 
-void do_ellipse(int part_index, xmlNodePtr ellipse, FILE *fp)
+void do_ellipse(float grid_scale, int part_index, xmlNodePtr ellipse, FILE *fp)
 {
 	int x1, y1, x2, y2;
 	xmlNodePtr defn;
@@ -49,9 +49,9 @@ void do_ellipse(int part_index, xmlNodePtr ellipse, FILE *fp)
 	cy = (y1 + y2) / 2;
 
 	if (rx == ry) {
-		rx = rx * GRID_FACTOR;
-		cx = cx * GRID_FACTOR;
-		cy = cy * -GRID_FACTOR;
+		rx = rx * grid_scale;
+		cx = cx * grid_scale;
+		cy = cy * -grid_scale;
 		fprintf(fp, "C %d %d %d %d 1 4 %s\n", cx, cy, rx, part_index, fill_style == 1 ? "N" : "F");
 	} else {
 		step =  (2 * PI) / 40;
@@ -61,16 +61,16 @@ void do_ellipse(int part_index, xmlNodePtr ellipse, FILE *fp)
 		for(theta = step; theta < (2 * PI); theta += step) {
 			x = (int)((float)(cx) + rx * cos(theta));
 			y = (int)((float)(cy) + ry * sin(theta));
-			fprintf(fp, "P 2 %d 1 4 %d %d %d %d N\n", part_index, (int)(last_x * GRID_FACTOR), (int)(last_y * -GRID_FACTOR), (int)(x * GRID_FACTOR), (int)(y * -GRID_FACTOR));
+			fprintf(fp, "P 2 %d 1 4 %d %d %d %d N\n", part_index, (int)(last_x * grid_scale), (int)(last_y * -grid_scale), (int)(x * grid_scale), (int)(y * -grid_scale));
 			last_x = x;
 			last_y = y;
 		}
 
-		fprintf(fp, "P 2 %d 1 4 %d %d %d %d N\n", part_index, (int)(last_x * GRID_FACTOR), (int)(last_y * -GRID_FACTOR), (int)((int)((float)(cx) + rx * cos(step)) * GRID_FACTOR), (int)((int)((float)(cy) + ry * sin(step)) * -GRID_FACTOR));
+		fprintf(fp, "P 2 %d 1 4 %d %d %d %d N\n", part_index, (int)(last_x * grid_scale), (int)(last_y * -grid_scale), (int)((int)((float)(cx) + rx * cos(step)) * grid_scale), (int)((int)((float)(cy) + ry * sin(step)) * -grid_scale));
 	}
 }
 
-void do_arc(int part_index, xmlNodePtr ellipse, FILE *fp)
+void do_arc(float grid_scale, int part_index, xmlNodePtr ellipse, FILE *fp)
 {
 	int x1, y1, x2, y2, sx, sy, ex, ey;
 	xmlNodePtr defn;
@@ -84,14 +84,14 @@ void do_arc(int part_index, xmlNodePtr ellipse, FILE *fp)
 	ellipse = ellipse->xmlChildrenNode;
 	defn = find_next_node(ellipse, "Defn");
 
-	x1 = get_defn_int_val(defn, "x1") * GRID_FACTOR;
-	x2 = get_defn_int_val(defn, "x2") * GRID_FACTOR;
-	y1 = get_defn_int_val(defn, "y1") * -GRID_FACTOR;
-	y2 = get_defn_int_val(defn, "y2") * -GRID_FACTOR;
-	sx = get_defn_int_val(defn, "startX") * GRID_FACTOR;
-	sy = get_defn_int_val(defn, "startY") * -GRID_FACTOR;
-	ex = get_defn_int_val(defn, "endX") * GRID_FACTOR;
-	ey = get_defn_int_val(defn, "endY") * -GRID_FACTOR;
+	x1 = get_defn_int_val(defn, "x1") * grid_scale;
+	x2 = get_defn_int_val(defn, "x2") * grid_scale;
+	y1 = get_defn_int_val(defn, "y1") * -grid_scale;
+	y2 = get_defn_int_val(defn, "y2") * -grid_scale;
+	sx = get_defn_int_val(defn, "startX") * grid_scale;
+	sy = get_defn_int_val(defn, "startY") * -grid_scale;
+	ex = get_defn_int_val(defn, "endX") * grid_scale;
+	ey = get_defn_int_val(defn, "endY") * -grid_scale;
 
 	rx = abs((x2 - x1) / 2);
 	ry = abs((y2 - y1) / 2);
@@ -127,7 +127,7 @@ void do_arc(int part_index, xmlNodePtr ellipse, FILE *fp)
 }
 
 
-void do_line(int part_index, xmlNodePtr line, FILE *fp)
+void do_line(float grid_scale, int part_index, xmlNodePtr line, FILE *fp)
 {
 	int x1, y1, x2, y2;
 	xmlNodePtr defn;
@@ -135,15 +135,15 @@ void do_line(int part_index, xmlNodePtr line, FILE *fp)
 	line = line->xmlChildrenNode;
 	defn = find_next_node(line, "Defn");
 
-	x1 = get_defn_int_val(defn, "x1") * GRID_FACTOR;
-	x2 = get_defn_int_val(defn, "x2") * GRID_FACTOR;
-	y1 = get_defn_int_val(defn, "y1") * -GRID_FACTOR;
-	y2 = get_defn_int_val(defn, "y2") * -GRID_FACTOR;
+	x1 = get_defn_int_val(defn, "x1") * grid_scale;
+	x2 = get_defn_int_val(defn, "x2") * grid_scale;
+	y1 = get_defn_int_val(defn, "y1") * -grid_scale;
+	y2 = get_defn_int_val(defn, "y2") * -grid_scale;
 
 	fprintf(fp, "P 2 %d 1 4 %d %d %d %d N\n", part_index, x1, y1, x2, y2);
 }
 
-void do_polygon(int part_index, xmlNodePtr poly, FILE *fp)
+void do_polygon(float grid_scale, int part_index, xmlNodePtr poly, FILE *fp)
 {
 	int x, y, next_x, next_y;
 	xmlNodePtr point, defn;
@@ -153,14 +153,14 @@ void do_polygon(int part_index, xmlNodePtr poly, FILE *fp)
 
 	defn = point->xmlChildrenNode;
 	defn = find_next_node(defn, "Defn");
-	x = get_defn_int_val(defn, "x") * GRID_FACTOR;
-	y = get_defn_int_val(defn, "y") * -GRID_FACTOR;
+	x = get_defn_int_val(defn, "x") * grid_scale;
+	y = get_defn_int_val(defn, "y") * -grid_scale;
 
 	while (point) {
 		defn = point->xmlChildrenNode;
 		defn = find_next_node(defn, "Defn");
-		next_x = get_defn_int_val(defn, "x") * GRID_FACTOR;
-		next_y = get_defn_int_val(defn, "y") * -GRID_FACTOR;
+		next_x = get_defn_int_val(defn, "x") * grid_scale;
+		next_y = get_defn_int_val(defn, "y") * -grid_scale;
 		fprintf(fp, "P 2 %d 1 4 %d %d %d %d N\n", part_index, x, y, next_x, next_y);
 		x = next_x;
 		y = next_y;
@@ -168,7 +168,7 @@ void do_polygon(int part_index, xmlNodePtr poly, FILE *fp)
 	}
 }
 
-void do_text(int part_index, xmlNodePtr text, FILE *fp)
+void do_text(float text_scale, float grid_scale, int part_index, xmlNodePtr text, FILE *fp)
 {
 	int escapement, italic, weight;
 	int x, y, height;
@@ -179,8 +179,8 @@ void do_text(int part_index, xmlNodePtr text, FILE *fp)
 	text = text->xmlChildrenNode;
 	tmp = find_next_node(text, "Defn");
 
-	x = get_defn_int_val(tmp, "locX") * GRID_FACTOR;
-	y = get_defn_int_val(tmp, "locY") * -GRID_FACTOR;
+	x = get_defn_int_val(tmp, "locX") * grid_scale;
+	y = get_defn_int_val(tmp, "locY") * -grid_scale;
 	get_defn_string(tmp, "name", name);
 
 	tmp = find_next_node(text, "TextFont");
@@ -190,7 +190,7 @@ void do_text(int part_index, xmlNodePtr text, FILE *fp)
 	escapement  = get_defn_int_val(tmp, "escapement");
 	italic      = get_defn_int_val(tmp, "italic");
 	weight      = get_defn_int_val(tmp, "weight");
-	height      = get_defn_int_val(tmp, "height") * TEXT_SCALE_FACTOR;
+	height      = get_defn_int_val(tmp, "height") * text_scale;
 
 	ptr = strtok(name, "\r\n");
 
@@ -208,7 +208,7 @@ void do_text(int part_index, xmlNodePtr text, FILE *fp)
 	}
 }
 
-void do_user_prop(xmlNodePtr libpart, struct def compo, FILE *fp)
+void do_user_prop(int text_size, xmlNodePtr libpart, struct def compo, FILE *fp)
 {
 	xmlNodePtr tmp, user_prop;
 	char name[128];
@@ -223,8 +223,8 @@ void do_user_prop(xmlNodePtr libpart, struct def compo, FILE *fp)
 	user_prop = find_next_node(tmp, "SymbolUserProp");
 
 	x = compo.box_right_x;
-	y = compo.box_right_y - DEFAULT_TEXT_SIZE - 10;
-	y = y - DEFAULT_TEXT_SIZE - 10;
+	y = compo.box_right_y - text_size - 10;
+	y = y - text_size - 10;
 
 	while (user_prop) {
 		tmp = user_prop->xmlChildrenNode;
@@ -233,12 +233,12 @@ void do_user_prop(xmlNodePtr libpart, struct def compo, FILE *fp)
 		get_defn_string(tmp, "name", name);
 		get_defn_string(tmp, "val", val);
 		user_prop = find_next_node(user_prop->next, "SymbolUserProp");
-		fprintf(fp, "F%d \"%s\" %d %d %d H I L CNN \"%s\"\n", i++, val, x, y, DEFAULT_TEXT_SIZE, name);
-		y = y - DEFAULT_TEXT_SIZE - 10;
+		fprintf(fp, "F%d \"%s\" %d %d %d H I L CNN \"%s\"\n", i++, val, x, y, text_size, name);
+		y = y - text_size - 10;
 	}
 }
 
-void do_rectangle(int part_index, xmlNodePtr rect, FILE *fp)
+void do_rectangle(float grid_scale, int part_index, xmlNodePtr rect, FILE *fp)
 {
 	int x1, y1, x2, y2, fill_style_int;
 	char fill_style[2];
@@ -247,10 +247,10 @@ void do_rectangle(int part_index, xmlNodePtr rect, FILE *fp)
 	defn = rect->xmlChildrenNode;
 	defn = find_next_node(defn, "Defn");
 
-	x1 = get_defn_int_val(defn, "x1") * GRID_FACTOR;
-	x2 = get_defn_int_val(defn, "x2") * GRID_FACTOR;
-	y1 = get_defn_int_val(defn, "y1") * -GRID_FACTOR;
-	y2 = get_defn_int_val(defn, "y2") * -GRID_FACTOR;
+	x1 = get_defn_int_val(defn, "x1") * grid_scale;
+	x2 = get_defn_int_val(defn, "x2") * grid_scale;
+	y1 = get_defn_int_val(defn, "y1") * -grid_scale;
+	y2 = get_defn_int_val(defn, "y2") * -grid_scale;
 	fill_style_int = get_defn_int_val(defn, "fillStyle");
 
 	if (fill_style_int == 0)
@@ -263,7 +263,7 @@ void do_rectangle(int part_index, xmlNodePtr rect, FILE *fp)
 	fprintf(fp, "S %d %d %d %d %d 1 4 %s\n", x1, y1, x2, y2, part_index, fill_style);
 }
 
-void do_pin(xmlNodePtr rect, struct pin *pin)
+void do_pin(float grid_scale, xmlNodePtr rect, struct pin *pin)
 {
 	xmlNodePtr defn, tmp;
 	char temp[128];
@@ -273,10 +273,10 @@ void do_pin(xmlNodePtr rect, struct pin *pin)
 
 	pin->type = get_defn_int_val(defn, "type");
 
-	pin->x1 = get_defn_int_val(defn, "hotptX") * GRID_FACTOR;
-	pin->y1 = get_defn_int_val(defn, "hotptY") * -GRID_FACTOR;
-	pin->x2 = get_defn_int_val(defn, "startX") * GRID_FACTOR;
-	pin->y2 = get_defn_int_val(defn, "startY") * -GRID_FACTOR;
+	pin->x1 = get_defn_int_val(defn, "hotptX") * grid_scale;
+	pin->y1 = get_defn_int_val(defn, "hotptY") * -grid_scale;
+	pin->x2 = get_defn_int_val(defn, "startX") * grid_scale;
+	pin->y2 = get_defn_int_val(defn, "startY") * -grid_scale;
 	pin->position = get_defn_int_val(defn, "position");
 
 	get_defn_string(defn, "name", pin->name);

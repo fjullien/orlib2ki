@@ -2,10 +2,7 @@
 #define __ORLIB2KI_H__
 
 #define PI			3.14159
-#define GRID_FACTOR		7.5
-#define TEXT_SCALE_FACTOR	3
 #define ELLIPSE_NB_SEGMENTS	40
-#define DEFAULT_TEXT_SIZE	35
 
 struct def {
 	char name[128];
