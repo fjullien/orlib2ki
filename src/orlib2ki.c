@@ -27,7 +27,7 @@
 
 void print_usage(void)
 {
-	printf("Usage: orlib2ki -i inputfile [-o outputfile]\n");
+	printf("Usage: orlib2ki [-v] -i inputfile [-o outputfile] [-g size]\n");
 	printf("       orlib2ki -h\n");
 }
 
@@ -50,19 +50,23 @@ int main(int argc, char *argv[])
 	int opt;
 	char ifile[128] = {0};
 	char ofile[128] = {0};
+	int verbose = 0;
 
 	if (argc == 1) {
 		print_usage();
 		return EXIT_FAILURE;
 	}
 
-	while ((opt = getopt(argc, argv, "i:o:h")) != -1) {
+	while ((opt = getopt(argc, argv, "i:o:hv")) != -1) {
 		switch(opt) {
 		case 'i':
 			strcpy(ifile, optarg);
 			break;
 		case 'o':
 			strcpy(ofile, optarg);
+			break;
+		case 'v':
+			verbose = 1;
 			break;
 		case 'h':
 		case ':':
@@ -120,7 +124,13 @@ int main(int argc, char *argv[])
 		get_defn_string(tmp, "name", component.name);
 		get_defn_string(tmp, "pcbFootprint", component.footprint);
 
+		if (verbose)
+			printf("[CONV]  %s [", component.name);
+
 		string_replace_char(component.name, ' ', '_');
+
+		if (verbose)
+			printf("%s]\n", component.name);
 
 		component.units_locked = get_defn_int_val(tmp, "isHomogeneous");
 
@@ -271,7 +281,8 @@ int main(int argc, char *argv[])
 
 			component.has_value = 1;
 		} else {
-			printf("[WARN] %s has no value\n", component.name);
+			if (verbose)
+				printf("[WARN]\t%s has no value\n", component.name);
 			component.has_value = 0;
 		}
 
