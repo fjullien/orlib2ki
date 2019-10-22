@@ -153,7 +153,8 @@ int main(int argc, char *argv[])
 
 		while (tmp) {
 			tmp = find_next_node(tmp, "LibPart");
-			tmp = tmp->next;
+			if (tmp)
+				tmp = tmp->next;
 			i++;
 		}
 
