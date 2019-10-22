@@ -206,6 +206,14 @@ int main(int argc, char *argv[])
 
 		component.draw_pinname = get_defn_int_val(tmp, "val");
 
+		tmp = find_next_node(normal_view_child, "SymbolDisplayProp");
+		if (!tmp) {
+			if (verbose)
+				printf("[WARN]\t%s has no refdes\n", component.name);
+			package = find_next_node(package->next, "Package");
+			continue;
+		}
+
 		fprintf(fp, "\n#***********************************************\n");
 		fprintf(fp, "#* %s\n", component.name);
 		fprintf(fp, "#***********************************************\n\n");
@@ -224,7 +232,6 @@ int main(int argc, char *argv[])
 		 *****************************************************
 		 */
 
-		tmp = find_next_node(normal_view_child, "SymbolDisplayProp");
 		tmp = tmp->xmlChildrenNode;
 		tmp = find_next_node(tmp, "Defn");
 
