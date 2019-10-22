@@ -25,7 +25,7 @@ proc ::capMenuUtil::convert { pLib } {
 	set allLibs [glob -directory $olbLibPath -- "*.xml"]
 	foreach f $allLibs {
 		puts $f
-		set cmd [list ${orlib2ki} -i $f]
+		set cmd [list ${orlib2ki} -i $f -g 10.0 -s 40]
 		puts $cmd
 		eval exec $cmd
 	}
