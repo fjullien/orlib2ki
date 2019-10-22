@@ -316,7 +316,7 @@ void do_pin(float grid_scale, xmlNodePtr rect, struct pin *pin)
 	pin->is_dot = get_defn_int_val(tmp, "val");
 }
 
-void do_physical(xmlNodePtr tmp, struct pin *pin, FILE *fp, int unit)
+void do_physical(int text_size, xmlNodePtr tmp, struct pin *pin, FILE *fp, int unit)
 {
 	const char type[9] = {'I', 'B', 'O', 'C', 'P', 'T', 'E', 'W', 'U'};
 	char name[128];
@@ -324,7 +324,7 @@ void do_physical(xmlNodePtr tmp, struct pin *pin, FILE *fp, int unit)
 	tmp = find_next_node(tmp->next, "PhysicalPart");
 	while (tmp) {
 		get_physical_part_pin_number(tmp, pin->position, name);
-		fprintf(fp, "X %s %s %d %d %d %s 25 25 %d 0 %c\n", pin->name, name[0] == 0 ? pin->name : name, pin->x1, pin->y1, pin->size, pin->orientation, unit++, type[pin->type]);
+		fprintf(fp, "X %s %s %d %d %d %s %d %d %d 0 %c\n", pin->name, name[0] == 0 ? pin->name : name, pin->x1, pin->y1, pin->size, pin->orientation, text_size, text_size, unit++, type[pin->type]);
 		tmp = find_next_node(tmp->next, "PhysicalPart");
 	}
 }

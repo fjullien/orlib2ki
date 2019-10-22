@@ -9,6 +9,6 @@ void do_text(float text_scale, float grid_scale, int part_index, xmlNodePtr text
 void do_user_prop(int text_size, xmlNodePtr libpart, struct def compo, FILE *fp);
 void do_rectangle(float grid_scale, int part_index, xmlNodePtr rect, FILE *fp);
 void do_pin(float grid_scale, xmlNodePtr rect, struct pin *pin);
-void do_physical(xmlNodePtr tmp, struct pin *pin, FILE *fp, int unit);
+void do_physical(int text_size, xmlNodePtr tmp, struct pin *pin, FILE *fp, int unit);
 
 #endif

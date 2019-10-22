@@ -404,11 +404,11 @@ int main(int argc, char *argv[])
 				struct pin pin;
 				do_pin(grid_scale, tmp, &pin);
 				if ((component.units_locked == 1) && (component.nb_phys_part == 1)) {
-					do_physical(libpart_child, &pin, fp, 0);
+					do_physical(text_size, libpart_child, &pin, fp, 0);
 				} else if ((component.units_locked == 1) && (component.nb_phys_part > 1)) {
-					do_physical(libpart_child, &pin, fp, 1);
+					do_physical(text_size, libpart_child, &pin, fp, 1);
 				} else if (component.units_locked == 0) {
-					do_physical(libpart_child, &pin, fp, part_index);
+					do_physical(text_size, libpart_child, &pin, fp, part_index);
 				}
 				i++;
 				tmp = find_next_node(tmp->next, "SymbolPinScalar");
