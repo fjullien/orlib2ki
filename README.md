@@ -29,4 +29,5 @@ Then, once you get myLib.xml:
 
 # TODO
 
-Understand Orcad native OLB format and convert directly from *.olb to KiCAD *.lib.
+- Understand Orcad native OLB format and convert directly from *.olb to KiCAD *.lib.
+- Update to the new KiCAD symbol format

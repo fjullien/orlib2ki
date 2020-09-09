@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
 	xmlKeepBlanksDefault(0);
 
-	doc = xmlParseFile(ifile);
+	doc = xmlReadFile(ifile, NULL, XML_PARSE_HUGE);
 	if (doc == NULL) {
 		fprintf(stderr, "Invalid input file\n");
 		return EXIT_FAILURE;
